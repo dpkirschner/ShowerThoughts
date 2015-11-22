@@ -1,0 +1,59 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'war'
+
+
+sourceCompatibility = 1.8
+version = '1.0'
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'ShowerThoughts',
+                   'Implementation-Version': version
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    flatDir {
+    	dirs 'lib'
+    }
+}
+
+dependencies {
+    compile (
+    	project(':EchoUtils')
+    	, 'commons-collections:commons-collections:3.2'
+    	, 'com.amazonaws:aws-lambda-java-core:1.0.0'
+        , 'com.amazonaws:aws-lambda-java-events:1.0.0'
+        , 'com.amazonaws:alexa-skills-kit:1.1'
+        , 'com.amazonaws:aws-java-sdk-dynamodb:1.9.40'
+        , 'log4j:log4j:1.2.17'
+        , 'org.slf4j:slf4j-api:1.7.10'
+        , 'org.apache.commons:commons-lang3:3.2'
+        , 'org.apache.directory.studio:org.apache.commons.io:2.4'
+        , 'net.dean.jraw:JRAW:0.7.1'
+    )
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources              
+    into('lib') {
+        from configurations.runtime
+    }           
+}
+
+build.dependsOn buildZip
