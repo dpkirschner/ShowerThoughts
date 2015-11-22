@@ -1,0 +1,3 @@
+println "including EchoUtils from ShowerThoughts"
+include ':EchoUtils'
+project(':EchoUtils').projectDir = new File(settingsDir, '../EchoUtils')
