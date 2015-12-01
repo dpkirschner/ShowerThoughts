@@ -34,6 +34,12 @@ dependencies {
         , 'org.apache.directory.studio:org.apache.commons.io:2.4'
         , 'net.dean.jraw:JRAW:0.7.1'
     )
+    testCompile (
+    	'junit:junit:4.+'
+    	, 'org.powermock:powermock-module-junit4:1.6.3'
+    	, 'org.powermock:powermock-api-easymock:1.6.3'
+    	, 'org.easymock:easymock:3.4'
+    )
 }
 
 test {

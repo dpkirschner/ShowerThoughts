@@ -23,6 +23,10 @@ public class RedditManager {
 	private String clientId;
 	private String clientSecret;
 	
+	public static RedditManager getInstance() throws NetworkException, OAuthException, IOException {
+		return new RedditManager();
+	}
+	
 	public RedditManager() throws NetworkException, OAuthException, IOException {
 		redditClient = new RedditClient(myUserAgent);
 		loadProperties();
@@ -46,11 +50,4 @@ public class RedditManager {
 		
 		return submission.getTitle();
 	}
-	
-//	public static void main(String args[]) throws NetworkException, OAuthException, InterruptedException, IOException {
-//		RedditManager manage = new RedditManager();
-//		for(int i = 0; i < 10; i++) {
-//			System.out.println(manage.getRandomPostTitle("showerThoughts"));
-//		}
-//	}
 }

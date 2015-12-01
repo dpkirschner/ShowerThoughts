@@ -1,5 +1,10 @@
 package com.dank.showerthoughts;
 
+import java.io.IOException;
+
+import net.dean.jraw.http.NetworkException;
+import net.dean.jraw.http.oauth.OAuthException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,18 +21,19 @@ import com.dank.echo.utils.ResponseFactory;
 import com.dank.showerthoughts.services.RedditManager;
 
 public class ShowerThoughtsSpeechlet implements Speechlet {
-    private static final String ERROR_TEXT = "I'm sorry, but I can't process your request right now. Please try again later. Goodbye.";
-	private static final String REPROMPT_TEXT = "Say 'another' to hear a new shower thought, or exit to quit";
-	private static final String SUBREDDIT_NAME = "showerthoughts";
-	private static final String CLOSE_TEXT = "Goodbye!";
-	private static final String HELP_TEXT = "Ask Shower Thoughts to say something random!";
-	private static final String CARD_TITLE = "Shower Thoughts";
+    protected static final String ERROR_TEXT = "I'm sorry, but I can't process your request right now. Please try again later. Goodbye.";
+    protected static final String REPROMPT_TEXT = "Say 'another' to hear a new shower thought, or exit to quit";
+    protected static final String SUBREDDIT_NAME = "showerthoughts";
+    protected static final String CLOSE_TEXT = "Goodbye!";
+    protected static final String HELP_TEXT = "Ask Shower Thoughts to say something random!";
+    protected static final String CARD_TITLE = "Shower Thoughts";
+    
 	private static final Logger log = LoggerFactory.getLogger(ShowerThoughtsSpeechlet.class);
     private RedditManager reddit;
     
-    public ShowerThoughtsSpeechlet(RedditManager reddit) {
+    public ShowerThoughtsSpeechlet() throws NetworkException, OAuthException, IOException {
     	super();
-    	this.reddit = reddit;
+    	this.reddit = RedditManager.getInstance();
     }
     
     public void onSessionStarted(final SessionStartedRequest request, final Session session)
@@ -52,10 +58,9 @@ public class ShowerThoughtsSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(final IntentRequest request, final Session session)
             throws SpeechletException {
         log.info("onIntent requestId={}, sessionId={}", request.getRequestId(),
-                session.getSessionId());
+              session.getSessionId());
 
-        Intent intent = request.getIntent();
-        String intentName = (intent != null) ? intent.getName() : null;
+        String intentName = parseIntentName(request);
 
         SpeechletResponse response;
         switch (intentName) {
@@ -67,7 +72,7 @@ public class ShowerThoughtsSpeechlet implements Speechlet {
         	break;
         case "AMAZON.StopIntent":
         case "AMAZON.CancelIntent":
-        	response = ResponseFactory.closeResponse(CLOSE_TEXT, CARD_TITLE);
+        	response = ResponseFactory.closeResponse(CLOSE_TEXT, CARD_TITLE, CLOSE_TEXT);
         	break;
         default:
         	throw new SpeechletException(String.format("Could not recognize intent: '%s'", intentName));
@@ -75,6 +80,22 @@ public class ShowerThoughtsSpeechlet implements Speechlet {
         logResponse(request, session, response);
         return response;
     }
+
+	/**
+	 * This method returns the intent name if it exists, or throws a {@link SpeechletException}
+	 * if the intent is malformed in some way.
+	 * @param request
+	 * @return a string representing the intentName
+	 * @throws SpeechletException if the Intent is malformed
+	 */
+	private String parseIntentName(final IntentRequest request)
+			throws SpeechletException {
+		Intent intent = request.getIntent();
+		if(intent == null) {
+			throw new SpeechletException("Malformed Intent detected");
+		}
+		return intent.getName();
+	}
       
     /**
      * Creates a {@code SpeechletResponse} for the command intent.
@@ -90,7 +111,7 @@ public class ShowerThoughtsSpeechlet implements Speechlet {
     		speechTextBuilder.append(REPROMPT_TEXT);
             response = ResponseFactory.askResponse(speechTextBuilder.toString(), REPROMPT_TEXT, CARD_TITLE);
     	} catch (Exception e) {
-            response = ResponseFactory.closeResponse(ERROR_TEXT, CARD_TITLE);
+            response = ResponseFactory.closeResponse(ERROR_TEXT, CARD_TITLE, ERROR_TEXT);
     	}
         
         return response;

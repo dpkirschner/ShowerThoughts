@@ -8,7 +8,6 @@ import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.http.oauth.OAuthException;
 
 import com.amazon.speech.speechlet.lambda.SpeechletRequestStreamHandler;
-import com.dank.showerthoughts.services.RedditManager;
 
 public final class ShowerThoughtsSpeechletRequestStreamHandler extends SpeechletRequestStreamHandler {
 	private static final Set<String> supportedApplicationIds = new HashSet<String>();
@@ -17,6 +16,6 @@ public final class ShowerThoughtsSpeechletRequestStreamHandler extends Speechlet
 	}
 	
 	public ShowerThoughtsSpeechletRequestStreamHandler() throws NetworkException, OAuthException, IOException {
-	    super(new ShowerThoughtsSpeechlet(new RedditManager()), supportedApplicationIds);
+	    super(new ShowerThoughtsSpeechlet(), supportedApplicationIds);
 	}
 }
