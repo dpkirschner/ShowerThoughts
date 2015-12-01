@@ -1,7 +1,6 @@
 package com.dank.showerthoughts;
 
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -29,9 +28,6 @@ import com.amazon.speech.speechlet.SessionEndedRequest;
 import com.amazon.speech.speechlet.SessionStartedRequest;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
-import com.amazon.speech.ui.PlainTextOutputSpeech;
-import com.amazon.speech.ui.Reprompt;
-import com.amazon.speech.ui.SimpleCard;
 import com.dank.showerthoughts.services.RedditManager;
 
 @RunWith(PowerMockRunner.class)
@@ -96,21 +92,13 @@ public class ShowerThoughtsSpeechletTest {
 		setLaunchRequestExpectations();
 		setSessionExpectations(1);
 		setSuccessfulRedditCallExpectations();
-		SpeechletResponse response = speechlet.onLaunch(mockLaunchRequest, mockSession);
 		
+		SpeechletResponse response = speechlet.onLaunch(mockLaunchRequest, mockSession);
+
     	assertFalse(response.getShouldEndSession());
     	assertNotNull(response.getReprompt());
-    	assertEquals(ShowerThoughtsSpeechlet.REPROMPT_TEXT, 
-    			((PlainTextOutputSpeech)((Reprompt)response.getReprompt()).getOutputSpeech()).getText());
-    	
-    	
     	assertNotNull(response.getOutputSpeech());
-    	assertEquals(SAMPLE_TEXT + ". " + ShowerThoughtsSpeechlet.REPROMPT_TEXT, 
-    			((PlainTextOutputSpeech)response.getOutputSpeech()).getText());
-    	
     	assertNotNull(response.getCard());
-    	assertEquals(ShowerThoughtsSpeechlet.CARD_TITLE, ((SimpleCard)response.getCard()).getTitle());
-        assertEquals(SAMPLE_TEXT + ". " + ShowerThoughtsSpeechlet.REPROMPT_TEXT, ((SimpleCard)response.getCard()).getContent());
 	}
 	
 	/**
@@ -122,17 +110,13 @@ public class ShowerThoughtsSpeechletTest {
 	public void onLaunchFailure() throws SpeechletException {
 		setLaunchRequestExpectations();
 		setFailedRedditCallExpectations();
+		
 		SpeechletResponse response = speechlet.onLaunch(mockLaunchRequest, mockSession);
 		
     	assertTrue(response.getShouldEndSession());
     	assertNull(response.getReprompt());
-    	
     	assertNotNull(response.getOutputSpeech());
-    	assertEquals(ShowerThoughtsSpeechlet.ERROR_TEXT, ((PlainTextOutputSpeech)response.getOutputSpeech()).getText());
-    	
     	assertNotNull(response.getCard());
-    	assertEquals(ShowerThoughtsSpeechlet.CARD_TITLE, ((SimpleCard)response.getCard()).getTitle());
-        assertEquals(ShowerThoughtsSpeechlet.ERROR_TEXT, ((SimpleCard)response.getCard()).getContent());
 	}
 	
 	/**
@@ -153,21 +137,13 @@ public class ShowerThoughtsSpeechletTest {
 		setIntentNameExpectations("ThoughtIntent");
 		setSessionExpectations(2);
 		setSuccessfulRedditCallExpectations();
+		
 		SpeechletResponse response = speechlet.onIntent(mockIntentRequest, mockSession);
 		
     	assertFalse(response.getShouldEndSession());
     	assertNotNull(response.getReprompt());
-    	assertEquals(ShowerThoughtsSpeechlet.REPROMPT_TEXT, 
-    			((PlainTextOutputSpeech)((Reprompt)response.getReprompt()).getOutputSpeech()).getText());
-    	
-    	
     	assertNotNull(response.getOutputSpeech());
-    	assertEquals(SAMPLE_TEXT + ". " + ShowerThoughtsSpeechlet.REPROMPT_TEXT, 
-    			((PlainTextOutputSpeech)response.getOutputSpeech()).getText());
-    	
     	assertNotNull(response.getCard());
-    	assertEquals(ShowerThoughtsSpeechlet.CARD_TITLE, ((SimpleCard)response.getCard()).getTitle());
-        assertEquals(SAMPLE_TEXT + ". " + ShowerThoughtsSpeechlet.REPROMPT_TEXT, ((SimpleCard)response.getCard()).getContent());
 	}
 	
 	@Test
@@ -176,18 +152,12 @@ public class ShowerThoughtsSpeechletTest {
 		setIntentNameExpectations("AMAZON.HelpIntent");
 		setSessionExpectations(2);
 		setSuccessfulRedditCallExpectations();
+		
 		SpeechletResponse response = speechlet.onIntent(mockIntentRequest, mockSession);
 		
     	assertFalse(response.getShouldEndSession());
     	assertNotNull(response.getReprompt());
-    	assertEquals(ShowerThoughtsSpeechlet.HELP_TEXT, 
-    			((PlainTextOutputSpeech)((Reprompt)response.getReprompt()).getOutputSpeech()).getText());
-    	
-    	
     	assertNotNull(response.getOutputSpeech());
-    	assertEquals(ShowerThoughtsSpeechlet.HELP_TEXT, 
-    			((PlainTextOutputSpeech)response.getOutputSpeech()).getText());
-    	
     	assertNull(response.getCard());
 	}
 	
@@ -197,18 +167,13 @@ public class ShowerThoughtsSpeechletTest {
 		setIntentNameExpectations("AMAZON.StopIntent");
 		setSessionExpectations(2);
 		setSuccessfulRedditCallExpectations();
+		
 		SpeechletResponse response = speechlet.onIntent(mockIntentRequest, mockSession);
 		
     	assertTrue(response.getShouldEndSession());
     	assertNull(response.getReprompt());
-    	
     	assertNotNull(response.getOutputSpeech());
-    	assertEquals(ShowerThoughtsSpeechlet.CLOSE_TEXT, 
-    			((PlainTextOutputSpeech)response.getOutputSpeech()).getText());
-    	
     	assertNotNull(response.getCard());
-    	assertEquals(ShowerThoughtsSpeechlet.CARD_TITLE, ((SimpleCard)response.getCard()).getTitle());
-        assertEquals(ShowerThoughtsSpeechlet.CLOSE_TEXT, ((SimpleCard)response.getCard()).getContent());
 	}
 	
 	@Test
@@ -221,14 +186,8 @@ public class ShowerThoughtsSpeechletTest {
 		
     	assertTrue(response.getShouldEndSession());
     	assertNull(response.getReprompt());
-    	
     	assertNotNull(response.getOutputSpeech());
-    	assertEquals(ShowerThoughtsSpeechlet.CLOSE_TEXT, 
-    			((PlainTextOutputSpeech)response.getOutputSpeech()).getText());
-    	
     	assertNotNull(response.getCard());
-    	assertEquals(ShowerThoughtsSpeechlet.CARD_TITLE, ((SimpleCard)response.getCard()).getTitle());
-        assertEquals(ShowerThoughtsSpeechlet.CLOSE_TEXT, ((SimpleCard)response.getCard()).getContent());
 	}
 
 	private void setSessionEndRequestExpectations() {
