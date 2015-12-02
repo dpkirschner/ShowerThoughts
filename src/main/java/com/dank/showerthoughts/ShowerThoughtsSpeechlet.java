@@ -18,6 +18,7 @@ import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.SpeechletException;
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.dank.echo.utils.ResponseFactory;
+import com.dank.echo.utils.ResponseFactoryToken;
 import com.dank.showerthoughts.services.RedditManager;
 
 public class ShowerThoughtsSpeechlet implements Speechlet {
@@ -68,11 +69,23 @@ public class ShowerThoughtsSpeechlet implements Speechlet {
         	response = getRepromptResponse();
         	break;
         case "AMAZON.HelpIntent":
-        	response = ResponseFactory.askResponse(HELP_TEXT);
+        	response = ResponseFactory.from(
+        			ResponseFactoryToken.builder()
+        				.outputSpeech(HELP_TEXT)
+        				.repromptSpeech(HELP_TEXT)
+        				.build()
+        	);
         	break;
         case "AMAZON.StopIntent":
         case "AMAZON.CancelIntent":
-        	response = ResponseFactory.closeResponse(CLOSE_TEXT, CARD_TITLE, CLOSE_TEXT);
+        	response = ResponseFactory.from(
+        			ResponseFactoryToken.builder()
+        				.outputSpeech(CLOSE_TEXT)
+        				.cardTitle(CARD_TITLE)
+        				.cardContent(CLOSE_TEXT)
+        				.shouldEndSession(true)
+        				.build()
+        	);
         	break;
         default:
         	throw new SpeechletException(String.format("Could not recognize intent: '%s'", intentName));
@@ -105,17 +118,41 @@ public class ShowerThoughtsSpeechlet implements Speechlet {
     private SpeechletResponse getRepromptResponse() {
     	SpeechletResponse response = null;
     	try{
-    		StringBuilder speechTextBuilder = new StringBuilder();
-    		speechTextBuilder.append(reddit.getRandomPostTitle(SUBREDDIT_NAME));
-    		speechTextBuilder.append(". ");
-    		speechTextBuilder.append(REPROMPT_TEXT);
-            response = ResponseFactory.askResponse(speechTextBuilder.toString(), REPROMPT_TEXT, CARD_TITLE);
+    		String speechText = buildSpeechText();
+    		
+            response = ResponseFactory.from(
+        			ResponseFactoryToken.builder()
+        				.outputSpeech(speechText)
+        				.repromptSpeech(REPROMPT_TEXT)
+        				.cardTitle(CARD_TITLE)
+        				.cardContent(speechText)
+        				.build()
+        	);
     	} catch (Exception e) {
-            response = ResponseFactory.closeResponse(ERROR_TEXT, CARD_TITLE, ERROR_TEXT);
+    		response = ResponseFactory.from(
+        			ResponseFactoryToken.builder()
+        				.outputSpeech(ERROR_TEXT)
+        				.cardTitle(CARD_TITLE)
+        				.cardContent(ERROR_TEXT)
+        				.shouldEndSession(true)
+        				.build()
+        	);
     	}
         
         return response;
     }
+
+	/**
+	 * Pulls the post title from Reddit and constructs the speech text.
+	 * @return a string representing the 
+	 */
+	private String buildSpeechText() {
+		StringBuilder speechTextBuilder = new StringBuilder();
+		speechTextBuilder.append(reddit.getRandomPostTitle(SUBREDDIT_NAME));
+		speechTextBuilder.append(". ");
+		speechTextBuilder.append(REPROMPT_TEXT);
+		return speechTextBuilder.toString();
+	}
     
     private void logResponse(final IntentRequest request, final Session session, final SpeechletResponse response) {
     	log.info("onSessionEnded requestId={}, sessionId={}, speechText={}, responseText={}"
